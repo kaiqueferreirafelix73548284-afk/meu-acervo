@@ -6,58 +6,233 @@
   <title>KFLIX</title>
   <style>
     body {
+      margin: 0;
       background: #1a1a2e;
       color: white;
       font-family: sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 16px;
     }
-    .abas {
+    .topo {
       display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin: 20px 0;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #16162a;
     }
-    .abas button {
+    .topo button {
       background: #2d2d4a;
       color: white;
       border: none;
-      padding: 14px 20px;
-      font-size: 18px;
+      font-size: 22px;
+      padding: 10px 16px;
       border-radius: 12px;
     }
-    .abas button.ativa {
+    .topo h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+    .menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 100%;
+      box-sizing: border-box;
+      overflow-y: auto;
+      background: #16162a;
+      padding: 16px;
+      transform: translateX(-100%);
+      transition: transform 0.25s;
+      z-index: 10;
+    }
+    .menu.aberto {
+      transform: translateX(0);
+    }
+    .menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #2d2d4a;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .menu button.ativa {
       background: #6c5ce7;
     }
-    .secao {
-      display: none;
+    .menu button.nova {
+      background: transparent;
+      border: 2px dashed #6c5ce7;
+      text-align: center;
+      margin-top: 8px;
     }
-    .secao.ativa {
+    .linha {
+      display: flex;
+      gap: 8px;
+    }
+    .linha button {
+      margin-bottom: 8px;
+    }
+    .linha button.apagar {
+      width: auto;
+      text-align: center;
+      background: #4a2d3a;
+    }
+    .fundo {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 5;
+    }
+    .fundo.aberto {
       display: block;
+    }
+    .conteudo {
+      padding: 16px;
+      text-align: center;
+    }
+    .vazio {
+      opacity: 0.6;
     }
   </style>
 </head>
 <body>
-  <h1>KFLIX</h1>
-
-  <div class="abas">
-    <button onclick="mostrar('filmes')" id="b-filmes" class="ativa">Filmes</button>
-    <button onclick="mostrar('jogos')" id="b-jogos">Jogos</button>
-    <button onclick="mostrar('livros')" id="b-livros">Livros</button>
+  <div class="topo">
+    <button onclick="alternarMenu(true)">❯</button>
+    <h1>KFLIX</h1>
   </div>
 
-  <div id="filmes" class="secao ativa"><h2>Meus Filmes</h2></div>
-  <div id="jogos" class="secao"><h2>Meus Jogos</h2></div>
-  <div id="livros" class="secao"><h2>Meus Livros</h2></div>
+  <div id="fundo" class="fundo" onclick="alternarMenu(false)"></div>
+  <div id="menu" class="menu"></div>
+  <div id="conteudo" class="conteudo"></div>
 
   <script>
-    function mostrar(nome) {
-      document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-      document.querySelectorAll('.abas button').forEach(b => b.classList.remove('ativa'));
-      document.getElementById(nome).classList.add('ativa');
-      document.getElementById('b-' + nome).classList.add('ativa');
+    // Categorias fixas. Para criar mais pelo código, é só acrescentar uma linha aqui.
+    const padrao = [
+      { id: 'filmes', nome: 'Filmes' },
+      { id: 'jogos', nome: 'Jogos' },
+      { id: 'livros', nome: 'Livros' }
+    ];
+
+    // Categorias criadas pelo botão "+ Nova categoria" (ficam salvas no celular)
+    let extras = [];
+    try {
+      extras = JSON.parse(localStorage.getItem('kflix_categorias')) || [];
+    } catch (e) {
+      extras = [];
     }
+
+    let atual = 'geral';
+
+    function todas() {
+      return padrao.concat(extras);
+    }
+
+    function salvar() {
+      try {
+        localStorage.setItem('kflix_categorias', JSON.stringify(extras));
+      } catch (e) {}
+    }
+
+    function criarBotao(texto, classe, aoClicar) {
+      const b = document.createElement('button');
+      b.textContent = texto;
+      if (classe) b.className = classe;
+      b.onclick = aoClicar;
+      return b;
+    }
+
+    function desenhar() {
+      const menu = document.getElementById('menu');
+      menu.innerHTML = '<h2>Categorias</h2>';
+
+      menu.appendChild(criarBotao('Geral', atual === 'geral' ? 'ativa' : '', () => escolher('geral')));
+
+      todas().forEach(c => {
+        const linha = document.createElement('div');
+        linha.className = 'linha';
+        linha.appendChild(criarBotao(c.nome, atual === c.id ? 'ativa' : '', () => escolher(c.id)));
+        if (c.extra) {
+          linha.appendChild(criarBotao('✕', 'apagar', () => remover(c.id)));
+        }
+        menu.appendChild(linha);
+      });
+
+      menu.appendChild(criarBotao('+ Nova categoria', 'nova', novaCategoria));
+
+      const conteudo = document.getElementById('conteudo');
+      conteudo.innerHTML = '';
+
+      let lista = todas();
+      let titulo = 'Geral';
+      if (atual !== 'geral') {
+        lista = lista.filter(c => c.id === atual);
+        titulo = lista[0].nome;
+      }
+
+      const h2 = document.createElement('h2');
+      h2.textContent = titulo;
+      conteudo.appendChild(h2);
+
+      lista.forEach(c => {
+        if (atual === 'geral') {
+          const h3 = document.createElement('h3');
+          h3.textContent = c.nome;
+          conteudo.appendChild(h3);
+        }
+        const p = document.createElement('p');
+        p.className = 'vazio';
+        p.textContent = 'Nada por aqui ainda.';
+        conteudo.appendChild(p);
+      });
+    }
+
+    function escolher(id) {
+      atual = id;
+      desenhar();
+      alternarMenu(false);
+    }
+
+    function novaCategoria() {
+      const resposta = prompt('Nome da nova categoria:');
+      if (!resposta) return;
+      const nome = resposta.trim();
+      if (!nome) return;
+
+      const repetida = todas().some(c => c.nome.toLowerCase() === nome.toLowerCase());
+      if (repetida) {
+        alert('Essa categoria já existe!');
+        return;
+      }
+
+      const id = 'x' + Date.now();
+      extras.push({ id: id, nome: nome, extra: true });
+      salvar();
+      escolher(id);
+    }
+
+    function remover(id) {
+      const cat = extras.find(c => c.id === id);
+      if (!cat) return;
+      if (!confirm('Apagar a categoria "' + cat.nome + '"?')) return;
+      extras = extras.filter(c => c.id !== id);
+      if (atual === id) atual = 'geral';
+      salvar();
+      desenhar();
+    }
+
+    function alternarMenu(abrir) {
+      document.getElementById('menu').classList.toggle('aberto', abrir);
+      document.getElementById('fundo').classList.toggle('aberto', abrir);
+    }
+
+    desenhar();
   </script>
 </body>
 </html>

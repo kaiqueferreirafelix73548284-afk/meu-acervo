@@ -1,0 +1,15 @@
+{
+  "name": "KFLIX",
+  "short_name": "KFLIX",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#060608",
+  "theme_color": "#060608",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

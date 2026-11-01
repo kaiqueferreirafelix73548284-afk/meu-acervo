@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KFLIX</title>
-    <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon-512.png">
   <meta name="theme-color" content="#060608">
   <style>
@@ -103,6 +103,166 @@
     .vazio {
       opacity: 0.6;
     }
+    .bloco {
+      margin-bottom: 24px;
+    }
+    .cartao {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #2d2d4a;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .cartao .info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .cartao strong {
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+    .cartao .detalhe {
+      opacity: 0.8;
+      font-size: 14px;
+    }
+    .cartao .apagar {
+      background: #4a2d3a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 16px;
+    }
+    .capa {
+      width: 64px;
+      height: 96px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #1a1a2e;
+    }
+    .capa.vazia {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      border: 2px dashed #555570;
+      box-sizing: border-box;
+    }
+    .estrelas {
+      display: flex;
+      gap: 2px;
+    }
+    .estrela {
+      background: none;
+      border: none;
+      color: #555570;
+      font-size: 26px;
+      padding: 0 2px;
+    }
+    .estrela.cheia {
+      color: #f5c518;
+    }
+    .caixa .estrelas {
+      justify-content: center;
+      margin: 6px 0;
+    }
+    .caixa .estrela {
+      font-size: 40px;
+      padding: 0 4px;
+    }
+    button.add {
+      background: transparent;
+      color: white;
+      border: 2px dashed #6c5ce7;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 16px;
+      margin-top: 4px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 20;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.aberto {
+      display: flex;
+    }
+    .caixa {
+      background: #16162a;
+      width: 88%;
+      max-width: 380px;
+      max-height: 92%;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: left;
+    }
+    .caixa h3 {
+      margin-top: 0;
+    }
+    .caixa label {
+      display: block;
+      margin: 12px 0 4px;
+      opacity: 0.8;
+    }
+    .caixa input[type="text"],
+    .caixa select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background: #2d2d4a;
+      color: white;
+    }
+    .linha-capa {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .botao-capa {
+      background: #2d2d4a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 16px;
+    }
+    .botoes {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .botoes button {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      color: white;
+    }
+    .botoes .cancelar {
+      background: #2d2d4a;
+    }
+    .botoes .salvar {
+      background: #6c5ce7;
+    }
   </style>
 </head>
 <body>
@@ -115,6 +275,39 @@
   <div id="menu" class="menu"></div>
   <div id="conteudo" class="conteudo"></div>
 
+  <input id="arquivo-troca" type="file" accept="image/*" style="display:none">
+
+  <div id="modal" class="modal">
+    <div class="caixa">
+      <h3 id="modal-titulo"></h3>
+
+      <label>Nome</label>
+      <input id="m-nome" type="text" maxlength="80" placeholder="Digite o nome">
+
+      <label>Capa (opcional)</label>
+      <div class="linha-capa">
+        <img id="m-previa" class="capa" style="display:none" alt="">
+        <button type="button" id="m-botao-capa" class="botao-capa">Escolher capa</button>
+      </div>
+      <input id="m-arquivo" type="file" accept="image/*" style="display:none">
+
+      <label>Avaliação</label>
+      <div id="m-estrelas" class="estrelas"></div>
+
+      <label>Status</label>
+      <select id="m-status">
+        <option>Na fila</option>
+        <option>Em andamento</option>
+        <option>Terminei</option>
+      </select>
+
+      <div class="botoes">
+        <button class="cancelar" onclick="fecharModal()">Cancelar</button>
+        <button class="salvar" onclick="salvarItem()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Categorias fixas. Para criar mais pelo código, é só acrescentar uma linha aqui.
     const padrao = [
@@ -124,32 +317,113 @@
       { id: 'minigames', nome: 'Minigames' }
     ];
 
-    // Categorias criadas pelo botão "+ Nova categoria" (ficam salvas no celular)
-    let extras = [];
-    try {
-      extras = JSON.parse(localStorage.getItem('kflix_categorias')) || [];
-    } catch (e) {
-      extras = [];
+    function carregar(chave) {
+      try {
+        return JSON.parse(localStorage.getItem(chave)) || [];
+      } catch (e) {
+        return [];
+      }
     }
 
+    function guardar(chave, valor) {
+      try {
+        localStorage.setItem(chave, JSON.stringify(valor));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    let extras = carregar('kflix_categorias');
+    let itens = carregar('kflix_itens');
     let atual = 'geral';
+    let catModal = null;
+    let notaModal = 0;
+    let capaModal = '';
+    let itemTroca = null;
 
     function todas() {
       return padrao.concat(extras);
     }
 
-    function salvar() {
-      try {
-        localStorage.setItem('kflix_categorias', JSON.stringify(extras));
-      } catch (e) {}
+    function el(tag, classe, texto) {
+      const e = document.createElement(tag);
+      if (classe) e.className = classe;
+      if (texto) e.textContent = texto;
+      return e;
     }
 
     function criarBotao(texto, classe, aoClicar) {
-      const b = document.createElement('button');
-      b.textContent = texto;
-      if (classe) b.className = classe;
+      const b = el('button', classe, texto);
       b.onclick = aoClicar;
       return b;
+    }
+
+    // Diminui a imagem para ela caber na memória do celular
+    function reduzirImagem(arquivo, aoTerminar) {
+      const leitor = new FileReader();
+      leitor.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maximo = 360;
+          const escala = Math.min(1, maximo / Math.max(img.width, img.height));
+          const w = Math.round(img.width * escala);
+          const h = Math.round(img.height * escala);
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          aoTerminar(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = () => alert('Não consegui abrir essa imagem.');
+        img.src = leitor.result;
+      };
+      leitor.readAsDataURL(arquivo);
+    }
+
+    function elementoCapa(item) {
+      let c;
+      if (item.capa) {
+        c = el('img', 'capa');
+        c.src = item.capa;
+        c.alt = item.nome;
+      } else {
+        c = el('div', 'capa vazia', '🖼️');
+      }
+      c.onclick = () => {
+        itemTroca = item.id;
+        document.getElementById('arquivo-troca').click();
+      };
+      return c;
+    }
+
+    function cartao(item) {
+      const d = el('div', 'cartao');
+      d.appendChild(elementoCapa(item));
+
+      const info = el('div', 'info');
+      info.appendChild(el('strong', '', item.nome));
+
+      const estrelas = el('div', 'estrelas');
+      for (let n = 1; n <= 5; n++) {
+        const b = el('button', 'estrela' + (n <= item.nota ? ' cheia' : ''), '★');
+        b.onclick = () => avaliar(item.id, n);
+        estrelas.appendChild(b);
+      }
+      info.appendChild(estrelas);
+
+      info.appendChild(el('span', 'detalhe', item.status));
+      d.appendChild(info);
+      d.appendChild(criarBotao('✕', 'apagar', () => apagarItem(item.id)));
+      return d;
+    }
+
+    function avaliar(id, n) {
+      const item = itens.find(i => i.id === id);
+      if (!item) return;
+      item.nota = (item.nota === n) ? 0 : n;
+      guardar('kflix_itens', itens);
+      desenhar();
     }
 
     function desenhar() {
@@ -159,8 +433,7 @@
       menu.appendChild(criarBotao('Geral', atual === 'geral' ? 'ativa' : '', () => escolher('geral')));
 
       todas().forEach(c => {
-        const linha = document.createElement('div');
-        linha.className = 'linha';
+        const linha = el('div', 'linha');
         linha.appendChild(criarBotao(c.nome, atual === c.id ? 'ativa' : '', () => escolher(c.id)));
         if (c.extra) {
           linha.appendChild(criarBotao('✕', 'apagar', () => remover(c.id)));
@@ -180,20 +453,22 @@
         titulo = lista[0].nome;
       }
 
-      const h2 = document.createElement('h2');
-      h2.textContent = titulo;
-      conteudo.appendChild(h2);
+      conteudo.appendChild(el('h2', '', titulo));
 
       lista.forEach(c => {
+        const bloco = el('div', 'bloco');
         if (atual === 'geral') {
-          const h3 = document.createElement('h3');
-          h3.textContent = c.nome;
-          conteudo.appendChild(h3);
+          bloco.appendChild(el('h3', '', c.nome));
         }
-        const p = document.createElement('p');
-        p.className = 'vazio';
-        p.textContent = 'Nada por aqui ainda.';
-        conteudo.appendChild(p);
+
+        const doCat = itens.filter(i => i.cat === c.id);
+        if (doCat.length === 0) {
+          bloco.appendChild(el('p', 'vazio', 'Nada por aqui ainda.'));
+        }
+        doCat.forEach(i => bloco.appendChild(cartao(i)));
+
+        bloco.appendChild(criarBotao('+ Adicionar em ' + c.nome, 'add', () => abrirModal(c)));
+        conteudo.appendChild(bloco);
       });
     }
 
@@ -201,6 +476,69 @@
       atual = id;
       desenhar();
       alternarMenu(false);
+    }
+
+    function desenharEstrelasModal() {
+      const caixa = document.getElementById('m-estrelas');
+      caixa.innerHTML = '';
+      for (let n = 1; n <= 5; n++) {
+        const b = el('button', 'estrela' + (n <= notaModal ? ' cheia' : ''), '★');
+        b.type = 'button';
+        b.onclick = () => {
+          notaModal = (notaModal === n) ? 0 : n;
+          desenharEstrelasModal();
+        };
+        caixa.appendChild(b);
+      }
+    }
+
+    function abrirModal(cat) {
+      catModal = cat;
+      notaModal = 0;
+      capaModal = '';
+      document.getElementById('modal-titulo').textContent = 'Adicionar em ' + cat.nome;
+      document.getElementById('m-nome').value = '';
+      document.getElementById('m-status').selectedIndex = 0;
+      document.getElementById('m-previa').style.display = 'none';
+      document.getElementById('m-botao-capa').textContent = 'Escolher capa';
+      desenharEstrelasModal();
+      document.getElementById('modal').classList.add('aberto');
+    }
+
+    function fecharModal() {
+      document.getElementById('modal').classList.remove('aberto');
+    }
+
+    function salvarItem() {
+      const nome = document.getElementById('m-nome').value.trim();
+      if (!nome) {
+        alert('Escreva o nome primeiro!');
+        return;
+      }
+      itens.push({
+        id: 'i' + Date.now(),
+        cat: catModal.id,
+        nome: nome,
+        nota: notaModal,
+        capa: capaModal,
+        status: document.getElementById('m-status').value
+      });
+      if (!guardar('kflix_itens', itens)) {
+        itens.pop();
+        alert('Sem espaço para guardar. Tente sem capa ou apague algum item.');
+        return;
+      }
+      fecharModal();
+      desenhar();
+    }
+
+    function apagarItem(id) {
+      const item = itens.find(i => i.id === id);
+      if (!item) return;
+      if (!confirm('Apagar "' + item.nome + '"?')) return;
+      itens = itens.filter(i => i.id !== id);
+      guardar('kflix_itens', itens);
+      desenhar();
     }
 
     function novaCategoria() {
@@ -217,17 +555,19 @@
 
       const id = 'x' + Date.now();
       extras.push({ id: id, nome: nome, extra: true });
-      salvar();
+      guardar('kflix_categorias', extras);
       escolher(id);
     }
 
     function remover(id) {
       const cat = extras.find(c => c.id === id);
       if (!cat) return;
-      if (!confirm('Apagar a categoria "' + cat.nome + '"?')) return;
+      if (!confirm('Apagar a categoria "' + cat.nome + '" e tudo que tem nela?')) return;
       extras = extras.filter(c => c.id !== id);
+      itens = itens.filter(i => i.cat !== id);
       if (atual === id) atual = 'geral';
-      salvar();
+      guardar('kflix_categorias', extras);
+      guardar('kflix_itens', itens);
       desenhar();
     }
 
@@ -235,6 +575,43 @@
       document.getElementById('menu').classList.toggle('aberto', abrir);
       document.getElementById('fundo').classList.toggle('aberto', abrir);
     }
+
+    // Escolher capa na janelinha de adicionar
+    document.getElementById('m-botao-capa').onclick = () => {
+      document.getElementById('m-arquivo').click();
+    };
+
+    document.getElementById('m-arquivo').onchange = (e) => {
+      const arquivo = e.target.files[0];
+      e.target.value = '';
+      if (!arquivo) return;
+      reduzirImagem(arquivo, (dados) => {
+        capaModal = dados;
+        const previa = document.getElementById('m-previa');
+        previa.src = dados;
+        previa.style.display = 'block';
+        document.getElementById('m-botao-capa').textContent = 'Trocar capa';
+      });
+    };
+
+    // Trocar a capa de um item que já está na lista
+    document.getElementById('arquivo-troca').onchange = (e) => {
+      const arquivo = e.target.files[0];
+      e.target.value = '';
+      if (!arquivo) return;
+      const item = itens.find(i => i.id === itemTroca);
+      if (!item) return;
+      reduzirImagem(arquivo, (dados) => {
+        const antiga = item.capa;
+        item.capa = dados;
+        if (!guardar('kflix_itens', itens)) {
+          item.capa = antiga;
+          alert('Sem espaço para guardar essa capa.');
+          return;
+        }
+        desenhar();
+      });
+    };
 
     desenhar();
   </script>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meu Acervo</title>
+  <style>
+    body {
+      background: #1a1a2e;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 16px;
+    }
+    .abas {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .abas button {
+      background: #2d2d4a;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 18px;
+      border-radius: 12px;
+    }
+    .abas button.ativa {
+      background: #6c5ce7;
+    }
+    .secao {
+      display: none;
+    }
+    .secao.ativa {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Meu Acervo</h1>
+
+  <div class="abas">
+    <button onclick="mostrar('filmes')" id="b-filmes" class="ativa">Filmes</button>
+    <button onclick="mostrar('jogos')" id="b-jogos">Jogos</button>
+    <button onclick="mostrar('livros')" id="b-livros">Livros</button>
+  </div>
+
+  <div id="filmes" class="secao ativa"><h2>Meus Filmes</h2></div>
+  <div id="jogos" class="secao"><h2>Meus Jogos</h2></div>
+  <div id="livros" class="secao"><h2>Meus Livros</h2></div>
+
+  <script>
+    function mostrar(nome) {
+      document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+      document.querySelectorAll('.abas button').forEach(b => b.classList.remove('ativa'));
+      document.getElementById(nome).classList.add('ativa');
+      document.getElementById('b-' + nome).classList.add('ativa');
+    }
+  </script>
+</body>
+</html>

@@ -283,20 +283,30 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      cursor: pointer;
     }
-    .item-livro img {
+    .item-livro-capa {
       width: 120px;
       height: 180px;
       object-fit: cover;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      background: #1a1a2e;
+      cursor: pointer;
+    }
+    .item-livro-capa.vazia {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      border: 2px dashed #555570;
+      box-sizing: border-box;
     }
     .item-livro span {
       margin-top: 6px;
       font-size: 14px;
       font-weight: bold;
       text-align: center;
+      cursor: pointer;
     }
 
     /* ===== TELA COMPLETA DO LIVRO ===== */
@@ -343,6 +353,10 @@
       overflow: hidden;
       margin-bottom: 16px;
       box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+      background: #1a1a2e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .quadrado-capa img {
       width: 100%;
@@ -426,6 +440,7 @@
 
   <input id="arquivo-troca" type="file" accept="image/*" style="display:none">
   <input id="arquivo-logo" type="file" accept="image/*" style="display:none">
+  <input id="arquivo-livro" type="file" accept="image/*" style="display:none">
 
   <!-- MODAL ADICIONAR ITEM -->
   <div id="modal" class="modal">
@@ -472,8 +487,9 @@
       <button class="btn-fechar-livro" onclick="fecharTelaLivro()">✕</button>
     </div>
     <div class="centro-livro">
-      <div class="quadrado-capa">
-        <img id="livro-capa" src="" alt="Capa do Livro">
+      <div class="quadrado-capa" id="quadrado-capa-clique" onclick="escolherCapaLivroAtual()">
+        <img id="livro-capa" src="" alt="Capa do Livro" style="display:none">
+        <span id="livro-capa-vazia" style="font-size: 40px;">🖼️</span>
       </div>
       <button class="btn-ler-livro" onclick="alert('Iniciando leitura do livro...')">LER</button>
       <div class="info-detalhes-livro">
@@ -497,12 +513,11 @@
       { id: 'minigames', nome: 'Minigames' }
     ];
 
-    // ===== LISTA DE LIVROS FAZBEAR FRIGHTS (COM OS LINKS DO GITHUB RAW) =====
-        const livrosFnaf = [
+    // ===== LISTA DE LIVROS FAZBEAR FRIGHTS (12 LIVROS) =====
+    const livrosFnaf = [
       {
         id: 'ff1',
         nome: '#1 Into the Pit',
-        imagem: '1000443725.jpg',
         ano: '2019',
         historias: ['Into the Pit', 'To Be Beautiful', 'Count the Ways'],
         sinopse: 'O que Oswald mais deseja é um verão inesquecível. Mas quando descobre uma piscina de bolinhas na pizzaria abandonada, ele se vê transportado diretamente para o passado assustador da Fazbear Entertainment.'
@@ -510,7 +525,6 @@
       {
         id: 'ff2',
         nome: '#2 Fetch',
-        imagem: '1000443726.jpg',
         ano: '2020',
         historias: ['Fetch', 'Lonely Freddy', 'Out of Stock'],
         sinopse: 'Greg encontra um animatrônico canino abandonado chamado Fetch que consegue se conectar diretamente ao seu celular, atendendo seus desejos de formas cada vez mais sinistras e violentas.'
@@ -518,7 +532,6 @@
       {
         id: 'ff3',
         nome: '#3 1:35 AM',
-        imagem: '1000443727.webp',
         ano: '2020',
         historias: ['1:35 AM', 'Room for One More', 'The New Kid'],
         sinopse: 'Delilah compra uma boneca despertador antiga chamada Ella. Logo ela percebe que, às 1:35 da manhã, um sussurro assustador começa a persegui-la, mesmo quando a boneca não está por perto.'
@@ -526,7 +539,6 @@
       {
         id: 'ff4',
         nome: '#4 Step Closer',
-        imagem: '1000443728.webp',
         ano: '2020',
         historias: ['Step Closer', 'Dance With Me', 'Coming Home'],
         sinopse: 'Pete amaldiçoa seu próprio destino após ser infectado pela maldição de Foxy, enquanto traz conselhos sombrios de que se você chegar muito perto do pirata, pagará um preço terrível.'
@@ -534,7 +546,6 @@
       {
         id: 'ff5',
         nome: '#5 Bunny Call',
-        imagem: '1000443729.jpg',
         ano: '2020',
         historias: ['Bunny Call', 'In the Flesh', 'The Man in Room 1280'],
         sinopse: 'Bob decide pregar uma peça em sua família durante o acampamento chamando o "Bunny Call", mas logo se arrepende desesperadamente ao tentar proteger seus filhos da criatura da noite.'
@@ -542,7 +553,6 @@
       {
         id: 'ff6',
         nome: '#6 Blackbird',
-        imagem: '1000443730.jpg',
         ano: '2020',
         historias: ['Blackbird', 'The Real Jake', 'Hide-and-Seek'],
         sinopse: 'Nole e Sam criam um animatrônico assustador chamado Blackbird para um projeto escolar de terror. Porém, a criatura ganha vida própria e começa a perseguir a culpa no coração de Nole.'
@@ -550,7 +560,6 @@
       {
         id: 'ff7',
         nome: '#7 The Cliffs',
-        imagem: '1000443731.jpg',
         ano: '2021',
         historias: ['The Cliffs', 'The Breaking Wheel', 'He Told Me Everything'],
         sinopse: 'Robert compra um urso de brinquedo eletrônico chamado Tag-Along Freddy para monitorar seu filho, mas as falhas no sinal começam a mostrar um pesadelo se aproximando.'
@@ -558,7 +567,6 @@
       {
         id: 'ff8',
         nome: '#8 Gumdrop Angel',
-        imagem: '1000443732.jpg',
         ano: '2021',
         historias: ['Gumdrop Angel', 'Sergio\'s Lucky Day', 'What We Found'],
         sinopse: 'Angel deseja desesperadamente a atenção de sua família. Em sua raiva, ela consome uma estátua de doces mágica com consequências assustadoras para a sua própria forma física.'
@@ -566,7 +574,6 @@
       {
         id: 'ff9',
         nome: '#9 The Puppet Carver',
-        imagem: '1000443733.jpg',
         ano: '2021',
         historias: ['The Puppet Carver', 'Jumpstart', 'Pizza Kit'],
         sinopse: 'Jack tenta salvar sua fábrica de fantoches de madeira falida criando uma máquina inovadora, mas a invenção começa a esculpir pesadelos vivos.'
@@ -574,7 +581,6 @@
       {
         id: 'ff10',
         nome: '#10 Friendly Face',
-        imagem: '1000443734.jpg',
         ano: '2021',
         historias: ['Friendly Face', 'Sea Bonnies', 'Together Forever'],
         sinopse: 'Edward encomendou um robô com o rosto de seu gato falecido, mas a criatura mutante que chega revela ser o pesadelo definitivo.'
@@ -582,7 +588,6 @@
       {
         id: 'ff11',
         nome: '#11 Prankster',
-        imagem: '1000443735.jpg',
         ano: '2021',
         historias: ['Prankster', 'Kids at Play', 'Find Player Two'],
         sinopse: 'Jeremiah adora pegadinhas na desenvolvedora de jogos onde trabalha, até que um mistério sangrento com um saco na cabeça transforma o escritório em uma armadilha mortal.'
@@ -590,19 +595,17 @@
       {
         id: 'ff12',
         nome: '#12 Felix the Shark',
-        imagem: '1000443736.jpg',
         ano: '2022',
         historias: ['Felix the Shark', 'The Scoop', 'You\'re the Band'],
         sinopse: 'Um volume bônus especial com três contos nunca antes revelados da coleção Fazbear Frights, estrelando o terrível tubarão animatrônico Felix.'
       }
     ];
-    
 
     const MG_ATRASO_SURPRESA = 2500;
     const MG_TEMPO_SEGURAR = 600;
 
     const falasSenhorK = [
-      'Ah?, A!, oi!, Caramba é tão bom ver uma alma viva por aqui, pelo visto você clicou na categoria mini games correto?',
+      'Ah?, A!, oi!, Caramba é tão bom ver uma       almas viva por aqui, pelo visto você clicou na categoria mini games correto?',
       'Ah claro que falta de educação minha não é mesmo?, Olá eu me chamo senhor K, eu sou o gerente da categoria mini games',
       'você deve estar muito curioso com os mini games que tem aqui então se você quer saber como funciona esses mini games apenas segura neles que vai aparecer uma informação sobre esses mini games'
     ];
@@ -643,12 +646,16 @@
     let itens = carregar('kflix_itens', []);
     let logos = carregar('kflix_logos', {});
     let fundos = carregar('kflix_fundos', {});
+    let livrosCapas = carregar('kflix_livros_capas', {});
+    
     let atual = 'geral';
     let catModal = null;
     let notaModal = 0;
     let capaModal = '';
     let itemTroca = null;
     let logoTroca = null;
+    let livroTrocaId = null;
+    let livroAtualId = null;
 
     let mgTimers = [];
     let mgFala = -1;
@@ -767,14 +774,27 @@
       const carrossel = el('div', 'carrossel-livros');
       livrosFnaf.forEach(livro => {
         const card = el('div', 'item-livro');
-        const img = el('img', '');
-        img.src = livro.imagem;
-        img.alt = livro.nome;
+        
+        let imgCapa;
+        if (livrosCapas[livro.id]) {
+          imgCapa = el('img', 'item-livro-capa');
+          imgCapa.src = livrosCapas[livro.id];
+          imgCapa.alt = livro.nome;
+        } else {
+          imgCapa = el('div', 'item-livro-capa vazia', '🖼️');
+        }
 
-        card.appendChild(img);
-        card.appendChild(el('span', '', livro.nome));
-        card.onclick = () => abrirTelaLivro(livro);
+        imgCapa.onclick = (e) => {
+          e.stopPropagation();
+          livroTrocaId = livro.id;
+          document.getElementById('arquivo-livro').click();
+        };
 
+        const tituloSpan = el('span', '', livro.nome);
+        tituloSpan.onclick = () => abrirTelaLivro(livro);
+
+        card.appendChild(imgCapa);
+        card.appendChild(tituloSpan);
         carrossel.appendChild(card);
       });
 
@@ -783,7 +803,9 @@
     }
 
     function abrirTelaLivro(livro) {
-      document.getElementById('livro-capa').src = livro.imagem;
+      livroAtualId = livro.id;
+      atualizarVisualCapaLivroModal();
+
       document.getElementById('livro-titulo').textContent = livro.nome;
       document.getElementById('livro-ano').textContent = 'Ano de Lançamento: ' + livro.ano;
       document.getElementById('livro-sinopse').textContent = livro.sinopse;
@@ -795,6 +817,26 @@
       });
 
       document.getElementById('tela-livro').classList.add('aberta');
+    }
+
+    function atualizarVisualCapaLivroModal() {
+      const img = document.getElementById('livro-capa');
+      const vazia = document.getElementById('livro-capa-vazia');
+      if (livrosCapas[livroAtualId]) {
+        img.src = livrosCapas[livroAtualId];
+        img.style.display = 'block';
+        vazia.style.display = 'none';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+        vazia.style.display = 'block';
+      }
+    }
+
+    function escolherCapaLivroAtual() {
+      if (!livroAtualId) return;
+      livroTrocaId = livroAtualId;
+      document.getElementById('arquivo-livro').click();
     }
 
     function fecharTelaLivro() {
@@ -1084,6 +1126,21 @@
           alert('Sem espaço para guardar essa capa.');
           return;
         }
+        desenhar();
+      });
+    };
+
+    document.getElementById('arquivo-livro').onchange = (e) => {
+      const arquivo = e.target.files[0];
+      e.target.value = '';
+      if (!arquivo || !livroTrocaId) return;
+      reduzirImagem(arquivo, 360, 'image/jpeg', (dados) => {
+        livrosCapas[livroTrocaId] = dados;
+        if (!guardar('kflix_livros_capas', livrosCapas)) {
+          alert('Sem espaço para guardar essa capa.');
+          return;
+        }
+        atualizarVisualCapaLivroModal();
         desenhar();
       });
     };

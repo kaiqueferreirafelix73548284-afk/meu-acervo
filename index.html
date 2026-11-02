@@ -534,7 +534,6 @@
       { id: 'minigames', nome: 'Minigames' }
     ];
 
-    // ===== LISTA DE LIVROS FAZBEAR FRIGHTS (12 LIVROS) =====
     const livrosFnaf = [
       {
         id: 'ff1',
@@ -610,7 +609,7 @@
         id: 'ff11',
         nome: '#11 Prankster',
         ano: '2021',
-        historias: [''Prankster', 'Kids at Play', 'Find Player Two'],
+        historias: ['Prankster', 'Kids at Play', 'Find Player Two'],
         sinopse: 'Jeremiah adora pegadinhas na desenvolvedora de jogos onde trabalha, até que um mistério sangrento com um saco na cabeça transforma o escritório em uma armadilha mortal.'
       },
       {
@@ -622,7 +621,6 @@
       }
     ];
 
-    // ===== LISTA DE LIVROS TALES FROM THE PIZZAPLEX (12 LIVROS) =====
     const livrosPizzaplex = [
       {
         id: 'pz1',
@@ -710,7 +708,6 @@
       }
     ];
 
-    // ===== LISTA DE VÍDEOS DA HISTÓRIA DE FNAF (CORE) =====
     const videosFnaf = [
       {
         id: 'vd1',
@@ -789,7 +786,7 @@
     let livroTrocaId = null;
     let videoTrocaId = null;
     let atualIdModal = null;
-    let tipoModalAtual = 'livro'; // 'livro' ou 'video'
+    let tipoModalAtual = 'livro';
 
     let mgTimers = [];
     let mgFala = -1;
@@ -900,7 +897,6 @@
       desenhar();
     }
 
-    // ===== CARROSSÉIS E TELAS (FAZBEAR FRIGHTS, PIZZAPLEX E VÍDEOS) =====
     function montarSecaoLivrosFnaf() {
       const caixa = el('div', '');
       caixa.appendChild(el('h3', 'secao-livros-titulo', 'Livros Fazbear Frights'));
@@ -1095,7 +1091,6 @@
       document.getElementById('tela-livro').classList.remove('aberta');
     }
 
-    // ===== MINIGAMES =====
     function mgAgendar(fn, ms) { mgTimers.push(setTimeout(fn, ms)); }
     function mgParar() { mgTimers.forEach(t => clearTimeout(t)); mgTimers = []; mgFala = -1; mgLiberado = false; }
     function montarMinigames() {
@@ -1141,7 +1136,8 @@
       balao.innerHTML = '';
       balao.appendChild(el('p', 'mg-fala', falasSenhorK[mgFala]));
       balao.appendChild(el('span', 'mg-seta', '▼'));
-      balao.classList.remove('aberto');void balao.offsetWidth;
+      balao.classList.remove('aberto');
+      void balao.offsetWidth;
       balao.classList.add('aberto');
     }
 
@@ -1152,7 +1148,7 @@
       if (mgFala < falasSenhorK.length) {
         mgMostrarFala();
       } else {
-        const balao = document.getElementById('mg-balao');
+        const balao = ent.getElementById('mg-balao');
         if (balao) balao.classList.remove('aberto');
       }
     }
@@ -1200,7 +1196,6 @@
 
     function fecharInfoJogo() { document.getElementById('modal-jogo').classList.remove('aberto'); }
 
-    // ===== RENDERIZAÇÃO DA PÁGINA =====
     function desenhar() {
       const menu = document.getElementById('menu');
       menu.innerHTML = '<h2>Categorias</h2>';
@@ -1230,8 +1225,14 @@
       if (atual === 'geral') {
         lista = lista.filter(c => c.id !== 'minigames');
       } else {
-        lista = lista.filter(c => c.id === atual);
-        titulo = lista[0].nome;
+        const encontrada = lista.find(c => c.id === atual);
+        if (!encontrada) {
+          atual = 'geral';
+          desenhar();
+          return;
+        }
+        lista = [encontrada];
+        titulo = encontrada.nome;
       }
 
       conteudo.appendChild(el('h2', '', titulo));

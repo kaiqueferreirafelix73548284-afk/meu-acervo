@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
@@ -107,6 +108,7 @@
       margin-bottom: 28px;
     }
     .logo-card {
+      position: relative;
       background: #e8e8f0;
       border-radius: 12px;
       padding: 10px;
@@ -123,6 +125,19 @@
     }
     .logo-card.grande img {
       max-height: 120px;
+    }
+    .logo-card .tirar {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: #4a2d3a;
+      color: white;
+      font-size: 16px;
     }
     .cartao {
       display: flex;
@@ -408,6 +423,13 @@
       document.getElementById('arquivo-logo').click();
     }
 
+    function tirarLogo(id) {
+      if (!confirm('Tirar a logo desta categoria?')) return;
+      delete logos[id];
+      guardar('kflix_logos', logos);
+      desenhar();
+    }
+
     // Cabeçalho da categoria: a logo (se tiver) ou o nome em texto
     function cabecalho(c, grande) {
       const caixa = el('div', '');
@@ -416,8 +438,12 @@
         const img = el('img', '');
         img.src = logos[c.id];
         img.alt = c.nome;
+        img.onclick = () => escolherLogo(c.id);
         card.appendChild(img);
-        card.onclick = () => escolherLogo(c.id);
+        card.appendChild(criarBotao('✕', 'tirar', (e) => {
+          e.stopPropagation();
+          tirarLogo(c.id);
+        }));
         caixa.appendChild(card);
       } else {
         if (!grande) {

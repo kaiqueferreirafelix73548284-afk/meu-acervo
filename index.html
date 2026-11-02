@@ -299,7 +299,7 @@
       text-align: center;
     }
 
-    /* ===== TELA COMPLETA DO LIVRO (Inspirado no rascunho) ===== */
+    /* ===== TELA COMPLETA DO LIVRO ===== */
     .tela-livro {
       display: none;
       position: fixed;
@@ -466,7 +466,7 @@
     </div>
   </div>
 
-  <!-- TELA DE LEITURA DO LIVRO (Inspirada no rascunho enviado) -->
+  <!-- TELA DE LEITURA DO LIVRO -->
   <div id="tela-livro" class="tela-livro">
     <div class="topo-livro">
       <button class="btn-fechar-livro" onclick="fecharTelaLivro()">✕</button>
@@ -497,12 +497,12 @@
       { id: 'minigames', nome: 'Minigames' }
     ];
 
-    // ===== LISTA DE LIVROS FAZBEAR FRIGHTS (12 LIVROS) =====
+    // ===== LISTA DE LIVROS FAZBEAR FRIGHTS (COM OS LINKS DO GITHUB RAW) =====
     const livrosFnaf = [
       {
         id: 'ff1',
         nome: '#1 Into the Pit',
-        imagem: '1000443725.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443725.jpg',
         ano: '2019',
         historias: ['Into the Pit', 'To Be Beautiful', 'Count the Ways'],
         sinopse: 'O que Oswald mais deseja é um verão inesquecível. Mas quando descobre uma piscina de bolinhas na pizzaria abandonada, ele se vê transportado diretamente para o passado assustador da Fazbear Entertainment.'
@@ -510,7 +510,7 @@
       {
         id: 'ff2',
         nome: '#2 Fetch',
-        imagem: '1000443726.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443726.jpg',
         ano: '2020',
         historias: ['Fetch', 'Lonely Freddy', 'Out of Stock'],
         sinopse: 'Greg encontra um animatrônico canino abandonado chamado Fetch que consegue se conectar diretamente ao seu celular, atendendo seus desejos de formas cada vez mais sinistras e violentas.'
@@ -518,7 +518,7 @@
       {
         id: 'ff3',
         nome: '#3 1:35 AM',
-        imagem: '1000443727.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443727.webp',
         ano: '2020',
         historias: ['1:35 AM', 'Room for One More', 'The New Kid'],
         sinopse: 'Delilah compra uma boneca despertador antiga chamada Ella. Logo ela percebe que, às 1:35 da manhã, um sussurro assustador começa a persegui-la, mesmo quando a boneca não está por perto.'
@@ -526,7 +526,7 @@
       {
         id: 'ff4',
         nome: '#4 Step Closer',
-        imagem: '1000443728.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443728.webp',
         ano: '2020',
         historias: ['Step Closer', 'Dance With Me', 'Coming Home'],
         sinopse: 'Pete amaldiçoa seu próprio destino após ser infectado pela maldição de Foxy, enquanto traz conselhos sombrios de que se você chegar muito perto do pirata, pagará um preço terrível.'
@@ -534,7 +534,7 @@
       {
         id: 'ff5',
         nome: '#5 Bunny Call',
-        imagem: '1000443729.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443729.jpg',
         ano: '2020',
         historias: ['Bunny Call', 'In the Flesh', 'The Man in Room 1280'],
         sinopse: 'Bob decide pregar uma peça em sua família durante o acampamento chamando o "Bunny Call", mas logo se arrepende desesperadamente ao tentar proteger seus filhos da criatura da noite.'
@@ -542,7 +542,7 @@
       {
         id: 'ff6',
         nome: '#6 Blackbird',
-        imagem: '1000443730.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443730.jpg',
         ano: '2020',
         historias: ['Blackbird', 'The Real Jake', 'Hide-and-Seek'],
         sinopse: 'Nole e Sam criam um animatrônico assustador chamado Blackbird para um projeto escolar de terror. Porém, a criatura ganha vida própria e começa a perseguir a culpa no coração de Nole.'
@@ -550,7 +550,7 @@
       {
         id: 'ff7',
         nome: '#7 The Cliffs',
-        imagem: '1000443731.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443731.jpg',
         ano: '2021',
         historias: ['The Cliffs', 'The Breaking Wheel', 'He Told Me Everything'],
         sinopse: 'Robert compra um urso de brinquedo eletrônico chamado Tag-Along Freddy para monitorar seu filho, mas as falhas no sinal começam a mostrar um pesadelo se aproximando.'
@@ -558,7 +558,7 @@
       {
         id: 'ff8',
         nome: '#8 Gumdrop Angel',
-        imagem: '1000443732.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443732.jpg',
         ano: '2021',
         historias: ['Gumdrop Angel', 'Sergio\'s Lucky Day', 'What We Found'],
         sinopse: 'Angel deseja desesperadamente a atenção de sua família. Em sua raiva, ela consome uma estátua de doces mágica com consequências assustadoras para a sua própria forma física.'
@@ -566,7 +566,7 @@
       {
         id: 'ff9',
         nome: '#9 The Puppet Carver',
-        imagem: '1000443733.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443733.jpg',
         ano: '2021',
         historias: ['The Puppet Carver', 'Jumpstart', 'Pizza Kit'],
         sinopse: 'Jack tenta salvar sua fábrica de fantoches de madeira falida criando uma máquina inovadora, mas a invenção começa a esculpir pesadelos vivos.'
@@ -574,7 +574,7 @@
       {
         id: 'ff10',
         nome: '#10 Friendly Face',
-        imagem: '1000443734.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443734.jpg',
         ano: '2021',
         historias: ['Friendly Face', 'Sea Bonnies', 'Together Forever'],
         sinopse: 'Edward encomendou um robô com o rosto de seu gato falecido, mas a criatura mutante que chega revela ser o pesadelo definitivo.'
@@ -582,22 +582,22 @@
       {
         id: 'ff11',
         nome: '#11 Prankster',
-        imagem: '1000443735.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443735.jpg',
         ano: '2021',
-        historias: ['Prankster', 'Kids at Play', 'Find Player Two'],
+        historias: ['Prankster', 'Kids at Play',         'Find Player Two'],
         sinopse: 'Jeremiah adora pegadinhas na desenvolvedora de jogos onde trabalha, até que um mistério sangrento com um saco na cabeça transforma o escritório em uma armadilha mortal.'
       },
       {
         id: 'ff12',
         nome: '#12 Felix the Shark',
-        imagem: '1000443736.jpg',
+        imagem: 'https://raw.githubusercontent.com/kaiqueferreirafelix73548284-afk/meu-acervo/main/1000443736.jpg',
         ano: '2022',
         historias: ['Felix the Shark', 'The Scoop', 'You\'re the Band'],
         sinopse: 'Um volume bônus especial com três contos nunca antes revelados da coleção Fazbear Frights, estrelando o terrível tubarão animatrônico Felix.'
       }
     ];
 
-        const MG_ATRASO_SURPRESA = 2500;
+    const MG_ATRASO_SURPRESA = 2500;
     const MG_TEMPO_SEGURAR = 600;
 
     const falasSenhorK = [

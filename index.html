@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<<!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
@@ -118,6 +117,15 @@
       align-items: center;
       justify-content: center;
     }
+    .logo-card.tom-claro {
+      background: #e8e8f0;
+    }
+    .logo-card.tom-preto {
+      background: #000000;
+    }
+    .logo-card.tom-transparente {
+      background: transparent;
+    }
     .logo-card img {
       max-width: 100%;
       max-height: 80px;
@@ -126,18 +134,25 @@
     .logo-card.grande img {
       max-height: 120px;
     }
-    .logo-card .tirar {
+    .logo-card .tirar,
+    .logo-card .trocar-fundo {
       position: absolute;
       top: 6px;
-      right: 6px;
       width: 32px;
       height: 32px;
       padding: 0;
       border: none;
       border-radius: 50%;
-      background: #4a2d3a;
       color: white;
       font-size: 16px;
+    }
+    .logo-card .tirar {
+      right: 6px;
+      background: #4a2d3a;
+    }
+    .logo-card .trocar-fundo {
+      left: 6px;
+      background: #2d2d4a;
     }
     .cartao {
       display: flex;
@@ -373,6 +388,7 @@
     let extras = carregar('kflix_categorias', []);
     let itens = carregar('kflix_itens', []);
     let logos = carregar('kflix_logos', {});
+    let fundos = carregar('kflix_fundos', {});
     let atual = 'geral';
     let catModal = null;
     let notaModal = 0;
@@ -430,16 +446,30 @@
       desenhar();
     }
 
+    // Troca o fundo do cartão da logo: claro -> preto -> transparente
+    function mudarFundo(id) {
+      const ordem = ['claro', 'preto', 'transparente'];
+      const modo = fundos[id] || 'claro';
+      fundos[id] = ordem[(ordem.indexOf(modo) + 1) % ordem.length];
+      guardar('kflix_fundos', fundos);
+      desenhar();
+    }
+
     // Cabeçalho da categoria: a logo (se tiver) ou o nome em texto
     function cabecalho(c, grande) {
       const caixa = el('div', '');
       if (logos[c.id]) {
-        const card = el('div', 'logo-card' + (grande ? ' grande' : ''));
+        const modo = fundos[c.id] || 'claro';
+        const card = el('div', 'logo-card tom-' + modo + (grande ? ' grande' : ''));
         const img = el('img', '');
         img.src = logos[c.id];
         img.alt = c.nome;
         img.onclick = () => escolherLogo(c.id);
         card.appendChild(img);
+        card.appendChild(criarBotao('🎨', 'trocar-fundo', (e) => {
+          e.stopPropagation();
+          mudarFundo(c.id);
+        }));
         card.appendChild(criarBotao('✕', 'tirar', (e) => {
           e.stopPropagation();
           tirarLogo(c.id);
@@ -637,10 +667,12 @@
       extras = extras.filter(c => c.id !== id);
       itens = itens.filter(i => i.cat !== id);
       delete logos[id];
+      delete fundos[id];
       if (atual === id) atual = 'geral';
       guardar('kflix_categorias', extras);
       guardar('kflix_itens', itens);
       guardar('kflix_logos', logos);
+      guardar('kflix_fundos', fundos);
       desenhar();
     }
 

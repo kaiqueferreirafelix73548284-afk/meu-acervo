@@ -259,10 +259,10 @@
     .botoes .cancelar { background: #2d2d4a; }
     .botoes .salvar { background: #6c5ce7; }
 
-    /* ===== SEÇÃO DE LIVROS DE FNAF ===== */
+    /* ===== SECÇÕES DE LIVROS ===== */
     .secao-livros-titulo {
       font-size: 24px;
-      margin: 20px 0 10px;
+      margin: 24px 0 10px;
       border-bottom: 2px solid #6c5ce7;
       display: inline-block;
       padding-bottom: 4px;
@@ -357,6 +357,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
     .quadrado-capa img {
       width: 100%;
@@ -487,7 +488,7 @@
       <button class="btn-fechar-livro" onclick="fecharTelaLivro()">✕</button>
     </div>
     <div class="centro-livro">
-      <div class="quadrado-capa" id="quadrado-capa-clique" onclick="escolherCapaLivroAtual()">
+      <div class="quadrado-capa" onclick="escolherCapaLivroAtual()">
         <img id="livro-capa" src="" alt="Capa do Livro" style="display:none">
         <span id="livro-capa-vazia" style="font-size: 40px;">🖼️</span>
       </div>
@@ -601,11 +602,99 @@
       }
     ];
 
+    // ===== LISTA DE LIVROS TALES FROM THE PIZZAPLEX (12 LIVROS) =====
+    const livrosPizzaplex = [
+      {
+        id: 'pz1',
+        nome: "#1 Lally's Game",
+        ano: '2022',
+           historias: ["Lally's Game", "Under Construction", "Drowning"],
+        sinopse: "Matt adquire um manequim robótico chamado Lally para sua nova casa, mas a presença do brinquedo desperta segredos e pavores aterrorizantes."
+      },
+      {
+        id: 'pz2',
+        nome: '#2 Happs',
+        ano: '2022',
+        historias: ["Happs", "Cleithrophobia", "Foxy Goes to Sea"],
+        sinopse: "Em uma antiga fábrica de brinquedos abandonada, um mascote animatrônico falho cria uma armadilha mortal para os exploradores incautos."
+      },
+      {
+        id: 'pz3',
+        nome: '#3 Somniphobia',
+        ano: '2022',
+        historias: ["Somniphobia", "Pressure", "Cleithrophobia"],
+        sinopse: "O terror noturno toma conta quando a linha entre o sono, os sonhos e os pesadelos mecânicos se torna fina demais para distinguir."
+      },
+      {
+        id: 'pz4',
+        nome: '#4 Submechanophobia',
+        ano: '2022',
+        historias: ["Submechanophobia", "Bobbiedots Deployment", "Domo de Vidro"],
+        sinopse: "Medos profundos da água e de criaturas submersas ganham vida nas profundezas mecânicas esquecidas do grande Pizzaplex."
+      },
+      {
+        id: 'pz5',
+        nome: '#5 The Bobbiedots Conclusion',
+        ano: '2023',
+        historias: ["The Bobbiedots Conclusion", "GG", "Nexie (Early)"],
+        sinopse: "A conclusão da saga dos Bobbiedots traz revelações chocantes sobre a automação avançada e os perigos de residir perto do complexo."
+      },
+      {
+        id: 'pz6',
+        nome: '#6 Nexie',
+        ano: '2023',
+        historias: ["Nexie", "Happs (Alt)", "B7-2 (Early)"],
+        sinopse: "Um assistente virtual interativo projetado para ajudar estudantes acaba desenvolvendo uma obsessão tóxica e mortal por sua usuária."
+      },
+      {
+        id: 'pz7',
+        nome: '#7 Tiger Rock',
+        ano: '2023',
+        historias: ["Tiger Rock", "The Monty Story", "The Bleeding Edge"],
+        sinopse: "Um animatrônico em formato de tigre com óculos estilizados atrai um jovem para uma realidade virtual distorcida e sem saída."
+      },
+      {
+        id: 'pz8',
+        nome: '#8 B7-2',
+        ano: '2023',
+        historias: ["B7-2", "Hjeltnes", "The Mimic Origin"],
+        sinopse: "Um final explosivo e visceral que mergulha nas origens mais profundas do terror cibernético e do infame Mimic no subsolo."
+      },
+      {
+        id: 'pz9',
+        nome: 'Graphic Novel Vol. 1',
+        ano: '2023',
+        historias: ["Lally's Game (Quadrinhos)", "Under Construction", "Drowning"],
+        sinopse: "A adaptação oficial em quadrinhos das histórias mais arrepiantes e populares do universo Tales from the Pizzaplex."
+      },
+      {
+        id: 'pz10',
+        nome: 'Graphic Novel Vol. 2',
+        ano: '2024',
+        historias: ["Happs (Quadrinhos)", "Cleithrophobia", "Contos Extras"],
+        sinopse: "Segundo volume da coleção de romances gráficos trazendo ilustrações impressionantes e sombrias dos horrores do Pizzaplex."
+      },
+      {
+        id: 'pz11',
+        nome: 'Graphic Novel Vol. 3',
+        ano: '2024',
+        historias: ["Somniphobia (Quadrinhos)", "Pressure", "Contos Selecionados"],
+        sinopse: "Mais contos icónicos adaptados para o formato de graphic novel, expandindo os visuais arrepiantes dos animatrônicos."
+      },
+      {
+        id: 'pz12',
+        nome: 'Graphic Novel Vol. 4',
+        ano: '2025',
+        historias: ["Submechanophobia (Quadrinhos)", "Bobbiedots", "Contos Finais"],
+        sinopse: "Quarto volume da graphic novel com visuais estonteantes e histórias perturbadoras direto do coração do complexo."
+      }
+    ];
+
     const MG_ATRASO_SURPRESA = 2500;
     const MG_TEMPO_SEGURAR = 600;
 
     const falasSenhorK = [
-      'Ah?, A!, oi!, Caramba é tão bom ver uma       almas viva por aqui, pelo visto você clicou na categoria mini games correto?',
+      'Ah?, A!, oi!, Caramba é tão bom ver uma alma viva por aqui, pelo visto você clicou na categoria mini games correto?',
       'Ah claro que falta de educação minha não é mesmo?, Olá eu me chamo senhor K, eu sou o gerente da categoria mini games',
       'você deve estar muito curioso com os mini games que tem aqui então se você quer saber como funciona esses mini games apenas segura neles que vai aparecer uma informação sobre esses mini games'
     ];
@@ -766,13 +855,49 @@
       desenhar();
     }
 
-    // ===== CARROSSEL E TELA DE LIVROS =====
+    // ===== CARROSSEL E TELA DE LIVROS (FAZBEAR FRIGHTS) =====
     function montarSecaoLivrosFnaf() {
       const caixa = el('div', '');
       caixa.appendChild(el('h3', 'secao-livros-titulo', 'Livros Fazbear Frights'));
 
       const carrossel = el('div', 'carrossel-livros');
       livrosFnaf.forEach(livro => {
+        const card = el('div', 'item-livro');
+        
+        let imgCapa;
+        if (livrosCapas[livro.id]) {
+          imgCapa = el('img', 'item-livro-capa');
+          imgCapa.src = livrosCapas[livro.id];
+          imgCapa.alt = livro.nome;
+        } else {
+          imgCapa = el('div', 'item-livro-capa vazia', '🖼️');
+        }
+
+        imgCapa.onclick = (e) => {
+          e.stopPropagation();
+          livroTrocaId = livro.id;
+          document.getElementById('arquivo-livro').click();
+        };
+
+        const tituloSpan = el('span', '', livro.nome);
+        tituloSpan.onclick = () => abrirTelaLivro(livro);
+
+        card.appendChild(imgCapa);
+        card.appendChild(tituloSpan);
+        carrossel.appendChild(card);
+      });
+
+      caixa.appendChild(carrossel);
+      return caixa;
+    }
+
+    // ===== CARROSSEL E TELA DE LIVROS (TALES FROM THE PIZZAPLEX) =====
+    function montarSecaoLivrosPizzaplex() {
+      const caixa = el('div', '');
+      caixa.appendChild(el('h3', 'secao-livros-titulo', 'Livros Tales from the Pizzaplex'));
+
+      const carrossel = el('div', 'carrossel-livros');
+      livrosPizzaplex.forEach(livro => {
         const card = el('div', 'item-livro');
         
         let imgCapa;
@@ -999,6 +1124,7 @@
         
         if (c.id === 'fnaf') {
           bloco.appendChild(montarSecaoLivrosFnaf());
+          bloco.appendChild(montarSecaoLivrosPizzaplex());
         }
 
         conteudo.appendChild(bloco);
@@ -1026,7 +1152,7 @@
       document.getElementById('m-nome').value = '';
       document.getElementById('m-status').selectedIndex = 0;
       document.getElementById('m-previa').style.display = 'none';
-      document.getElementById('m-botao-capa').textContent = 'Escolher capa';
+      document.getElementById('m-botao-capa').textCoded = document.getElementById('m-botao-capa').textContent = 'Escolher capa';
       desenharEstrelasModal();
       document.getElementById('modal').classList.add('aberto');
     }

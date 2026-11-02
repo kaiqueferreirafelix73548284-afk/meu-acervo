@@ -311,6 +311,187 @@
     .botoes .salvar {
       background: #6c5ce7;
     }
+
+    /* ===== MINIGAMES: cena do Senhor K ===== */
+    @keyframes aparecer {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes piscar {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.2; }
+    }
+    @keyframes tremer {
+      0%, 100% { transform: translateX(0); }
+      20%      { transform: translateX(-5px); }
+      40%      { transform: translateX(5px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+
+    .mg-cena {
+      padding-top: 8px;
+    }
+    .mg-personagem {
+      position: relative;
+      min-height: 280px;
+      margin: 12px 16px 0;
+      cursor: pointer;
+    }
+    .mg-senhor {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 42%;
+      max-width: 170px;
+    }
+    .mg-senhor.tremer {
+      animation: tremer 0.5s;
+    }
+    /* Ajuste top/left se o "!" não ficar bem em cima da cabeça dele */
+    .mg-exclamacao {
+      position: absolute;
+      left: 22%;
+      top: 40px;
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      -webkit-text-stroke: 3px #000000;
+      opacity: 0;
+      transform: scale(0);
+      transition: transform 0.25s, opacity 0.25s;
+      pointer-events: none;
+    }
+    .mg-exclamacao.visivel {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .mg-balao {
+      display: none;
+      position: relative;
+      margin-left: 40%;
+      background: #ffffff;
+      color: #000000;
+      border: 3px solid #000000;
+      border-radius: 50% / 45%;
+      padding: 24px 22px 26px;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.35;
+      text-align: center;
+    }
+    .mg-balao.aberto {
+      display: block;
+      animation: aparecer 0.25s;
+    }
+    /* Rabinho do balão apontando para o Senhor K */
+    .mg-balao::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 30%;
+      border-style: solid;
+      border-width: 14px 30px 14px 0;
+      border-color: transparent #000000 transparent transparent;
+    }
+    .mg-balao::after {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: calc(30% + 3px);
+      border-style: solid;
+      border-width: 11px 24px 11px 0;
+      border-color: transparent #ffffff transparent transparent;
+    }
+    .mg-fala {
+      margin: 0;
+    }
+    .mg-seta {
+      display: block;
+      text-align: right;
+      font-size: 12px;
+      animation: piscar 1s infinite;
+    }
+    .mg-linha {
+      height: 2px;
+      background: #3a3a5a;
+      margin: 16px 0;
+    }
+
+    /* ===== MINIGAMES: lista de jogos ===== */
+    .mg-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 16px 24px;
+    }
+    .mg-jogo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #2d2d4a;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: left;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .mg-jogo.segurando {
+      background: #3a3a60;
+      transform: scale(0.98);
+    }
+    .mg-capa {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #1a1a2e;
+      pointer-events: none;
+    }
+    .mg-capa-vazia {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 2px dashed #555570;
+      box-sizing: border-box;
+    }
+    .mg-texto-jogo {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .mg-texto-jogo strong {
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+    .mg-desc {
+      opacity: 0.8;
+      font-size: 14px;
+    }
+
+    /* ===== Modal de informação do jogo ===== */
+    .jogo-imagem {
+      display: block;
+      width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      background: #1a1a2e;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .jogo-info {
+      opacity: 0.9;
+      line-height: 1.4;
+      white-space: pre-line;
+    }
   </style>
 </head>
 <body>
@@ -357,6 +538,17 @@
     </div>
   </div>
 
+  <div id="modal-jogo" class="modal">
+    <div class="caixa">
+      <img id="jogo-imagem" class="jogo-imagem" alt="">
+      <h3 id="jogo-nome"></h3>
+      <p id="jogo-info" class="jogo-info"></p>
+      <div class="botoes">
+        <button class="cancelar" onclick="fecharInfoJogo()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Categorias fixas. Para criar mais pelo código, é só acrescentar uma linha aqui.
     const padrao = [
@@ -366,6 +558,43 @@
       { id: 'bendy', nome: 'Bendy' },
       { id: 'baldi', nome: "Baldi's Basics" },
       { id: 'minigames', nome: 'Minigames' }
+    ];
+
+    // ===== CONFIGURAÇÃO DOS MINIGAMES =====
+    const MG_ATRASO_SURPRESA = 2500; // ms até o "!" aparecer
+    const MG_TEMPO_SEGURAR = 600;    // ms de toque longo para abrir a informação
+
+    // Falas do Senhor K (uma por balão, na ordem)
+    const falasSenhorK = [
+      'Ah?, A!, oi!, Caramba é tão bom ver uma alma viva por aqui, pelo visto você clicou na categoria mini games correto?',
+      'Ah claro que falta de educação minha não é mesmo?, Olá eu me chamo senhor K, eu sou o gerente da categoria mini games',
+      'você deve estar muito curioso com os mini games que tem aqui então se você quer saber como funciona esses mini games apenas segura neles que vai aparecer uma informação sobre esses mini games'
+    ];
+
+    // Jogos da lista. "imagem" é o nome do PNG (na mesma pasta do index.html).
+    // Troque os nomes, imagens e textos pelos reais.
+    const jogosMinigames = [
+      {
+        id: 'xadrez',
+        nome: 'Xadrez',
+        imagem: 'xadrez.png',
+        descricao: 'Jogo de estratégia para dois jogadores.',
+        info: 'Xadrez: jogo de estratégia em que cada jogador controla peças brancas ou pretas e tenta dar xeque-mate no rei adversário.'
+      },
+      {
+        id: 'jogo2',
+        nome: 'Jogo 2',
+        imagem: 'jogo2.png',
+        descricao: 'Descrição curta do jogo 2.',
+        info: 'Informações completas sobre o Jogo 2. Escreva aqui o que quiser mostrar.'
+      },
+      {
+        id: 'jogo3',
+        nome: 'Jogo 3',
+        imagem: 'jogo3.png',
+        descricao: 'Descrição curta do jogo 3.',
+        info: 'Informações completas sobre o Jogo 3. Escreva aqui o que quiser mostrar.'
+      }
     ];
 
     function carregar(chave, valorPadrao) {
@@ -395,6 +624,11 @@
     let capaModal = '';
     let itemTroca = null;
     let logoTroca = null;
+
+    // Estado da cena dos minigames
+    let mgTimers = [];
+    let mgFala = -1;
+    let mgLiberado = false;
 
     function todas() {
       return padrao.concat(extras);
@@ -529,6 +763,164 @@
       desenhar();
     }
 
+    // ===== MINIGAMES =====
+
+    function mgAgendar(fn, ms) {
+      mgTimers.push(setTimeout(fn, ms));
+    }
+
+    function mgParar() {
+      mgTimers.forEach(t => clearTimeout(t));
+      mgTimers = [];
+      mgFala = -1;
+      mgLiberado = false;
+    }
+
+    // Monta a tela de minigames: Senhor K, "!", balões e a lista de jogos
+    function montarMinigames() {
+      const cena = el('div', 'mg-cena');
+
+      const personagem = el('div', 'mg-personagem');
+      personagem.onclick = mgProximaFala;
+
+      const senhor = el('img', 'mg-senhor');
+      senhor.id = 'mg-senhor';
+      senhor.src = 'senhor_k.png';
+      senhor.alt = 'Senhor K';      const exclamacao = el('div', 'mg-exclamacao', '!');
+      exclamacao.id = 'mg-exclamacao';
+
+      const balao = el('div', 'mg-balao');
+      balao.id = 'mg-balao';
+
+      personagem.append(senhor, exclamacao, balao);
+      cena.appendChild(personagem);
+      cena.appendChild(el('div', 'mg-linha'));
+
+      const lista = el('div', 'mg-lista');
+      jogosMinigames.forEach(j => lista.appendChild(cardJogo(j)));
+      cena.appendChild(lista);
+
+      return cena;
+    }
+
+    // Começa a sequência: Senhor K sem perceber -> "!" -> balões
+    function mgIniciar() {
+      mgAgendar(mgMostrarSurpresa, MG_ATRASO_SURPRESA);
+    }
+
+    function mgMostrarSurpresa() {
+      const senhor = document.getElementById('mg-senhor');
+      const exclamacao = document.getElementById('mg-exclamacao');
+      if (!senhor || !exclamacao) return;
+
+      mgLiberado = true;
+      exclamacao.classList.add('visivel');
+      senhor.classList.add('tremer');
+
+      mgAgendar(() => {
+        mgFala = 0;
+        mgMostrarFala();
+      }, 1000);
+    }
+
+    function mgMostrarFala() {
+      const balao = document.getElementById('mg-balao');
+      if (!balao) return;
+
+      balao.innerHTML = '';
+      balao.appendChild(el('p', 'mg-fala', falasSenhorK[mgFala]));
+      balao.appendChild(el('span', 'mg-seta', '▼'));
+
+      // Remove e readiciona a classe para a animação tocar de novo
+      balao.classList.remove('aberto');
+      void balao.offsetWidth;
+      balao.classList.add('aberto');
+    }
+
+    // Toque na área do Senhor K: passa para o próximo balão
+    function mgProximaFala() {
+      if (!mgLiberado || mgFala < 0) return;
+      if (mgFala >= falasSenhorK.length) return;
+
+      mgFala++;
+      if (mgFala < falasSenhorK.length) {
+        mgMostrarFala();
+      } else {
+        const balao = document.getElementById('mg-balao');
+        if (balao) balao.classList.remove('aberto');
+      }
+    }
+
+    function cardJogo(jogo) {
+      const card = el('div', 'mg-jogo');
+
+      let capa;
+      if (jogo.imagem) {
+        capa = el('img', 'mg-capa');
+        capa.src = jogo.imagem;
+        capa.alt = jogo.nome;
+      } else {
+        capa = el('div', 'mg-capa mg-capa-vazia', '🎮');
+      }
+      card.appendChild(capa);
+
+      const texto = el('div', 'mg-texto-jogo');
+      texto.appendChild(el('strong', '', jogo.nome));
+      texto.appendChild(el('span', 'mg-desc', jogo.descricao));
+      card.appendChild(texto);
+
+      ligarSegurar(card, jogo);
+      return card;
+    }
+
+    // Toque longo no card abre a informação do jogo
+    function ligarSegurar(card, jogo) {
+      let timer = null;
+
+      const cancelar = () => {
+        clearTimeout(timer);
+        timer = null;
+        card.classList.remove('segurando');
+      };
+
+      card.addEventListener('pointerdown', () => {
+        card.classList.add('segurando');
+        timer = setTimeout(() => {
+          timer = null;
+          card.classList.remove('segurando');
+          if (navigator.vibrate) navigator.vibrate(30);
+          abrirInfoJogo(jogo);
+        }, MG_TEMPO_SEGURAR);
+      });
+      card.addEventListener('pointerup', cancelar);
+      card.addEventListener('pointerleave', cancelar);
+      card.addEventListener('pointercancel', cancelar);
+
+      // Evita o menu de "copiar/salvar imagem" do celular ao segurar
+      card.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    function abrirInfoJogo(jogo) {
+      const img = document.getElementById('jogo-imagem');
+      if (jogo.imagem) {
+        img.src = jogo.imagem;
+        img.style.display = 'block';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+      }
+      img.alt = jogo.nome;
+      document.getElementById('jogo-nome').textContent = jogo.nome;
+      document.getElementById('jogo-info').textContent = jogo.info;
+      document.getElementById('modal-jogo').classList.add('aberto');
+    }
+
+    function fecharInfoJogo() {
+      document.getElementById('modal-jogo').classList.remove('aberto');
+    }
+
+    // ===== FIM MINIGAMES =====
+
     function desenhar() {
       const menu = document.getElementById('menu');
       menu.innerHTML = '<h2>Categorias</h2>';
@@ -546,12 +938,23 @@
 
       menu.appendChild(criarBotao('+ Nova categoria', 'nova', novaCategoria));
 
+      mgParar();
       const conteudo = document.getElementById('conteudo');
       conteudo.innerHTML = '';
 
+      // Categoria Minigames: tela especial com o Senhor K
+      if (atual === 'minigames') {
+        conteudo.appendChild(montarMinigames());
+        mgIniciar();
+        return;
+      }
+
       let lista = todas();
       let titulo = 'Geral';
-      if (atual !== 'geral') {
+      if (atual === 'geral') {
+        // Minigames não aparece na Geral
+        lista = lista.filter(c => c.id !== 'minigames');
+      } else {
         lista = lista.filter(c => c.id === atual);
         titulo = lista[0].nome;
       }
@@ -738,6 +1141,11 @@
         }
         desenhar();
       });
+    };
+
+    // Fecha a janelinha de informação ao tocar fora dela
+    document.getElementById('modal-jogo').onclick = (e) => {
+      if (e.target.id === 'modal-jogo') fecharInfoJogo();
     };
 
     desenhar();

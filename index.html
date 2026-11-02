@@ -37,7 +37,7 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 240px;
+      width: 260px;
       height: 100%;
       box-sizing: border-box;
       overflow-y: auto;
@@ -104,7 +104,25 @@
       opacity: 0.6;
     }
     .bloco {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
+    }
+    .logo-card {
+      background: #e8e8f0;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 8px auto 12px;
+      max-width: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-card img {
+      max-width: 100%;
+      max-height: 80px;
+      object-fit: contain;
+    }
+    .logo-card.grande img {
+      max-height: 120px;
     }
     .cartao {
       display: flex;
@@ -276,6 +294,7 @@
   <div id="conteudo" class="conteudo"></div>
 
   <input id="arquivo-troca" type="file" accept="image/*" style="display:none">
+  <input id="arquivo-logo" type="file" accept="image/*" style="display:none">
 
   <div id="modal" class="modal">
     <div class="caixa">
@@ -311,17 +330,19 @@
   <script>
     // Categorias fixas. Para criar mais pelo código, é só acrescentar uma linha aqui.
     const padrao = [
-      { id: 'filmes', nome: 'Filmes' },
-      { id: 'jogos', nome: 'Jogos' },
-      { id: 'livros', nome: 'Livros' },
+      { id: 'fnaf', nome: "Five Nights at Freddy's" },
+      { id: 'poppy', nome: 'Poppy Playtime' },
+      { id: 'undertale', nome: 'Undertale' },
+      { id: 'bendy', nome: 'Bendy' },
+      { id: 'baldi', nome: "Baldi's Basics" },
       { id: 'minigames', nome: 'Minigames' }
     ];
 
-    function carregar(chave) {
+    function carregar(chave, valorPadrao) {
       try {
-        return JSON.parse(localStorage.getItem(chave)) || [];
+        return JSON.parse(localStorage.getItem(chave)) || valorPadrao;
       } catch (e) {
-        return [];
+        return valorPadrao;
       }
     }
 
@@ -334,13 +355,15 @@
       }
     }
 
-    let extras = carregar('kflix_categorias');
-    let itens = carregar('kflix_itens');
+    let extras = carregar('kflix_categorias', []);
+    let itens = carregar('kflix_itens', []);
+    let logos = carregar('kflix_logos', {});
     let atual = 'geral';
     let catModal = null;
     let notaModal = 0;
     let capaModal = '';
     let itemTroca = null;
+    let logoTroca = null;
 
     function todas() {
       return padrao.concat(extras);
@@ -360,12 +383,11 @@
     }
 
     // Diminui a imagem para ela caber na memória do celular
-    function reduzirImagem(arquivo, aoTerminar) {
+    function reduzirImagem(arquivo, maximo, tipo, aoTerminar) {
       const leitor = new FileReader();
       leitor.onload = () => {
         const img = new Image();
         img.onload = () => {
-          const maximo = 360;
           const escala = Math.min(1, maximo / Math.max(img.width, img.height));
           const w = Math.round(img.width * escala);
           const h = Math.round(img.height * escala);
@@ -373,12 +395,37 @@
           canvas.width = w;
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          aoTerminar(canvas.toDataURL('image/jpeg', 0.75));
+          aoTerminar(canvas.toDataURL(tipo, 0.75));
         };
         img.onerror = () => alert('Não consegui abrir essa imagem.');
         img.src = leitor.result;
       };
       leitor.readAsDataURL(arquivo);
+    }
+
+    function escolherLogo(id) {
+      logoTroca = id;
+      document.getElementById('arquivo-logo').click();
+    }
+
+    // Cabeçalho da categoria: a logo (se tiver) ou o nome em texto
+    function cabecalho(c, grande) {
+      const caixa = el('div', '');
+      if (logos[c.id]) {
+        const card = el('div', 'logo-card' + (grande ? ' grande' : ''));
+        const img = el('img', '');
+        img.src = logos[c.id];
+        img.alt = c.nome;
+        card.appendChild(img);
+        card.onclick = () => escolherLogo(c.id);
+        caixa.appendChild(card);
+      } else {
+        if (!grande) {
+          caixa.appendChild(el('h3', '', c.nome));
+        }
+        caixa.appendChild(criarBotao('+ Escolher logo', 'add', () => escolherLogo(c.id)));
+      }
+      return caixa;
     }
 
     function elementoCapa(item) {
@@ -457,9 +504,7 @@
 
       lista.forEach(c => {
         const bloco = el('div', 'bloco');
-        if (atual === 'geral') {
-          bloco.appendChild(el('h3', '', c.nome));
-        }
+        bloco.appendChild(cabecalho(c, atual !== 'geral'));
 
         const doCat = itens.filter(i => i.cat === c.id);
         if (doCat.length === 0) {
@@ -565,9 +610,11 @@
       if (!confirm('Apagar a categoria "' + cat.nome + '" e tudo que tem nela?')) return;
       extras = extras.filter(c => c.id !== id);
       itens = itens.filter(i => i.cat !== id);
+      delete logos[id];
       if (atual === id) atual = 'geral';
       guardar('kflix_categorias', extras);
       guardar('kflix_itens', itens);
+      guardar('kflix_logos', logos);
       desenhar();
     }
 
@@ -585,7 +632,7 @@
       const arquivo = e.target.files[0];
       e.target.value = '';
       if (!arquivo) return;
-      reduzirImagem(arquivo, (dados) => {
+      reduzirImagem(arquivo, 360, 'image/jpeg', (dados) => {
         capaModal = dados;
         const previa = document.getElementById('m-previa');
         previa.src = dados;
@@ -601,12 +648,34 @@
       if (!arquivo) return;
       const item = itens.find(i => i.id === itemTroca);
       if (!item) return;
-      reduzirImagem(arquivo, (dados) => {
+      reduzirImagem(arquivo, 360, 'image/jpeg', (dados) => {
         const antiga = item.capa;
         item.capa = dados;
         if (!guardar('kflix_itens', itens)) {
           item.capa = antiga;
           alert('Sem espaço para guardar essa capa.');
+          return;
+        }
+        desenhar();
+      });
+    };
+
+    // Escolher ou trocar a logo de uma categoria (fica só no celular)
+    document.getElementById('arquivo-logo').onchange = (e) => {
+      const arquivo = e.target.files[0];
+      e.target.value = '';
+      if (!arquivo || !logoTroca) return;
+      const id = logoTroca;
+      reduzirImagem(arquivo, 500, 'image/png', (dados) => {
+        const antiga = logos[id];
+        logos[id] = dados;
+        if (!guardar('kflix_logos', logos)) {
+          if (antiga) {
+            logos[id] = antiga;
+          } else {
+            delete logos[id];
+          }
+          alert('Sem espaço para guardar essa logo.');
           return;
         }
         desenhar();

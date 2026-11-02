@@ -259,7 +259,7 @@
     .botoes .cancelar { background: #2d2d4a; }
     .botoes .salvar { background: #6c5ce7; }
 
-    /* ===== SECÇÕES DE LIVROS ===== */
+    /* ===== SECÇÕES DE LIVROS E VÍDEOS ===== */
     .secao-livros-titulo {
       font-size: 24px;
       margin: 24px 0 10px;
@@ -309,7 +309,16 @@
       cursor: pointer;
     }
 
-    /* ===== TELA COMPLETA DO LIVRO ===== */
+    /* ===== CARROSSEL DE VÍDEOS (FORMATO PAISAGEM) ===== */
+    .carrossel-videos .item-livro-capa {
+      width: 160px;
+      height: 96px;
+    }
+    .carrossel-videos .item-livro {
+      flex: 0 0 160px;
+    }
+
+    /* ===== TELA COMPLETA DO LIVRO / VÍDEO ===== */
     .tela-livro {
       display: none;
       position: fixed;
@@ -346,8 +355,8 @@
       margin-top: 10px;
     }
     .quadrado-capa {
-      width: 180px;
-      height: 270px;
+      width: 240px;
+      height: 140px;
       border: 3px solid #ffffff;
       border-radius: 12px;
       overflow: hidden;
@@ -364,13 +373,17 @@
       height: 100%;
       object-fit: cover;
     }
+    .quadrado-livro-padrao {
+      width: 180px;
+      height: 270px;
+    }
     .btn-ler-livro {
       background: #ffffff;
       color: #000;
       border: none;
       padding: 12px 32px;
       border-radius: 24px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       margin-bottom: 24px;
       cursor: pointer;
@@ -442,6 +455,7 @@
   <input id="arquivo-troca" type="file" accept="image/*" style="display:none">
   <input id="arquivo-logo" type="file" accept="image/*" style="display:none">
   <input id="arquivo-livro" type="file" accept="image/*" style="display:none">
+  <input id="arquivo-video" type="file" accept="image/*" style="display:none">
 
   <!-- MODAL ADICIONAR ITEM -->
   <div id="modal" class="modal">
@@ -482,24 +496,30 @@
     </div>
   </div>
 
-  <!-- TELA DE LEITURA DO LIVRO -->
+  <!-- TELA DE LEITURA / DETALHES (LIVROS E VÍDEOS) -->
   <div id="tela-livro" class="tela-livro">
     <div class="topo-livro">
       <button class="btn-fechar-livro" onclick="fecharTelaLivro()">✕</button>
     </div>
     <div class="centro-livro">
-      <div class="quadrado-capa" onclick="escolherCapaLivroAtual()">
-        <img id="livro-capa" src="" alt="Capa do Livro" style="display:none">
+      <div class="quadrado-capa" id="quadrado-capa-box" onclick="escolherCapaAtual()">
+        <img id="livro-capa" src="" alt="Capa" style="display:none">
         <span id="livro-capa-vazia" style="font-size: 40px;">🖼️</span>
       </div>
-      <button class="btn-ler-livro" onclick="alert('Iniciando leitura do livro...')">LER</button>
+      <button id="btn-acao-principal" class="btn-ler-livro" onclick="acaoPrincipalModal()">LER</button>
       <div class="info-detalhes-livro">
         <h2 id="livro-titulo"></h2>
         <div id="livro-ano" class="ano"></div>
-        <strong>3 Histórias do Livro:</strong>
-        <ul id="livro-historias" class="historias"></ul>
+        <div id="bloco-extra-detalhes">
+          <strong id="subtitulo-extra">3 Histórias do Livro:</strong>
+          <ul id="livro-historias" class="historias"></ul>
+        </div>
         <strong>Sinopse / Descrição:</strong>
         <p id="livro-sinopse"></p>
+        <div id="bloco-link-youtube" style="display:none; margin-top: 12px;">
+          <strong>Link do Vídeo no YouTube:</strong>
+          <p id="video-link-txt" style="word-break: break-all; color: #a29bfe; font-size: 13px; margin-top: 4px;"></p>
+        </div>
       </div>
     </div>
   </div>
@@ -590,7 +610,7 @@
         id: 'ff11',
         nome: '#11 Prankster',
         ano: '2021',
-        historias: ['Prankster', 'Kids at Play', 'Find Player Two'],
+        historias: [''Prankster', 'Kids at Play', 'Find Player Two'],
         sinopse: 'Jeremiah adora pegadinhas na desenvolvedora de jogos onde trabalha, até que um mistério sangrento com um saco na cabeça transforma o escritório em uma armadilha mortal.'
       },
       {
@@ -608,7 +628,7 @@
         id: 'pz1',
         nome: "#1 Lally's Game",
         ano: '2022',
-           historias: ["Lally's Game", "Under Construction", "Drowning"],
+        historias: ["Lally's Game", "Under Construction", "Drowning"],
         sinopse: "Matt adquire um manequim robótico chamado Lally para sua nova casa, mas a presença do brinquedo desperta segredos e pavores aterrorizantes."
       },
       {
@@ -690,6 +710,28 @@
       }
     ];
 
+    // ===== LISTA DE VÍDEOS DA HISTÓRIA DE FNAF (CORE) =====
+    const videosFnaf = [
+      {
+        id: 'vd1',
+        nome: 'O Documentário de Five Nights at Freddy\'s',
+        criador: 'Feito pelo YouTube Core',
+        data: '23 de jun. de 2023',
+        estatisticas: '7,8 mi visualizações • 306 mil curtidas',
+        link: 'https://youtu.be/Z0IlRsW3teI?is=CYKAhbRccEa-rzcQ',
+        sinopse: 'O documentário definitivo de quase 3 horas cobrindo toda a complexa e grandiosa história da franquia Five Nights at Freddy\'s, produzido pelo canal Core.'
+      },
+      {
+        id: 'vd2',
+        nome: 'Vai ter o Documentário 2 de Five Nights at Freddy\'s?',
+        criador: 'Feito pelo YouTube Core',
+        data: '23 de jun. de 2025',
+        estatisticas: '68 mil visualizações • 9,8 mil curtidas',
+        link: 'https://youtu.be/bh4Ybol4p4o?is=UFG_udf_AwbvclKe',
+        sinopse: 'Vídeo especial onde o Core aborda as expectativas, planos e novidades sobre a possível criação de um segundo documentário de FNAF para o futuro.'
+      }
+    ];
+
     const MG_ATRASO_SURPRESA = 2500;
     const MG_TEMPO_SEGURAR = 600;
 
@@ -736,6 +778,7 @@
     let logos = carregar('kflix_logos', {});
     let fundos = carregar('kflix_fundos', {});
     let livrosCapas = carregar('kflix_livros_capas', {});
+    let videosCapas = carregar('kflix_videos_capas', {});
     
     let atual = 'geral';
     let catModal = null;
@@ -744,7 +787,9 @@
     let itemTroca = null;
     let logoTroca = null;
     let livroTrocaId = null;
-    let livroAtualId = null;
+    let videoTrocaId = null;
+    let atualIdModal = null;
+    let tipoModalAtual = 'livro'; // 'livro' ou 'video'
 
     let mgTimers = [];
     let mgFala = -1;
@@ -855,7 +900,7 @@
       desenhar();
     }
 
-    // ===== CARROSSEL E TELA DE LIVROS (FAZBEAR FRIGHTS) =====
+    // ===== CARROSSÉIS E TELAS (FAZBEAR FRIGHTS, PIZZAPLEX E VÍDEOS) =====
     function montarSecaoLivrosFnaf() {
       const caixa = el('div', '');
       caixa.appendChild(el('h3', 'secao-livros-titulo', 'Livros Fazbear Frights'));
@@ -863,7 +908,6 @@
       const carrossel = el('div', 'carrossel-livros');
       livrosFnaf.forEach(livro => {
         const card = el('div', 'item-livro');
-        
         let imgCapa;
         if (livrosCapas[livro.id]) {
           imgCapa = el('img', 'item-livro-capa');
@@ -891,7 +935,6 @@
       return caixa;
     }
 
-    // ===== CARROSSEL E TELA DE LIVROS (TALES FROM THE PIZZAPLEX) =====
     function montarSecaoLivrosPizzaplex() {
       const caixa = el('div', '');
       caixa.appendChild(el('h3', 'secao-livros-titulo', 'Livros Tales from the Pizzaplex'));
@@ -899,7 +942,6 @@
       const carrossel = el('div', 'carrossel-livros');
       livrosPizzaplex.forEach(livro => {
         const card = el('div', 'item-livro');
-        
         let imgCapa;
         if (livrosCapas[livro.id]) {
           imgCapa = el('img', 'item-livro-capa');
@@ -917,6 +959,40 @@
 
         const tituloSpan = el('span', '', livro.nome);
         tituloSpan.onclick = () => abrirTelaLivro(livro);
+
+        card.appendChild(imgCapa);
+        card.appendChild(tituloSpan);
+        carrossel.appendChild(card);
+      });
+
+      caixa.appendChild(carrossel);
+      return caixa;
+    }
+
+    function montarSecaoVideosFnaf() {
+      const caixa = el('div', '');
+      caixa.appendChild(el('h3', 'secao-livros-titulo', 'Vídeos da História de FNAF'));
+
+      const carrossel = el('div', 'carrossel-livros carrossel-videos');
+      videosFnaf.forEach(video => {
+        const card = el('div', 'item-livro');
+        let imgCapa;
+        if (videosCapas[video.id]) {
+          imgCapa = el('img', 'item-livro-capa');
+          imgCapa.src = videosCapas[video.id];
+          imgCapa.alt = video.nome;
+        } else {
+          imgCapa = el('div', 'item-livro-capa vazia', '▶️');
+        }
+
+        imgCapa.onclick = (e) => {
+          e.stopPropagation();
+          videoTrocaId = video.id;
+          document.getElementById('arquivo-video').click();
+        };
+
+        const tituloSpan = el('span', '', video.nome);
+        tituloSpan.onclick = () => abrirTelaVideo(video);
 
         card.appendChild(imgCapa);
         card.appendChild(tituloSpan);
@@ -928,40 +1004,91 @@
     }
 
     function abrirTelaLivro(livro) {
-      livroAtualId = livro.id;
-      atualizarVisualCapaLivroModal();
+      tipoModalAtual = 'livro';
+      atualIdModal = livro.id;
+      atualizarVisualCapaModal();
 
       document.getElementById('livro-titulo').textContent = livro.nome;
       document.getElementById('livro-ano').textContent = 'Ano de Lançamento: ' + livro.ano;
-      document.getElementById('livro-sinopse').textContent = livro.sinopse;
-
+      document.getElementById('subtitulo-extra').textContent = '3 Histórias do Livro:';
+      
       const ul = document.getElementById('livro-historias');
       ul.innerHTML = '';
       livro.historias.forEach(h => {
         ul.appendChild(el('li', '', h));
       });
+      document.getElementById('bloco-extra-detalhes').style.display = 'block';
+
+      document.getElementById('livro-sinopse').textContent = livro.sinopse;
+      document.getElementById('bloco-link-youtube').style.display = 'none';
+
+      const btnAcao = document.getElementById('btn-acao-principal');
+      btnAcao.textContent = 'LER';
+      document.getElementById('quadrado-capa-box').className = 'quadrado-capa quadrado-livro-padrao';
 
       document.getElementById('tela-livro').classList.add('aberta');
     }
 
-    function atualizarVisualCapaLivroModal() {
+    function abrirTelaVideo(video) {
+      tipoModalAtual = 'video';
+      atualIdModal = video.id;
+      atualizarVisualCapaModal();
+
+      document.getElementById('livro-titulo').textContent = video.nome;
+      document.getElementById('livro-ano').textContent = video.criador + ' • ' + video.data + ' • ' + video.estatisticas;
+      document.getElementById('bloco-extra-detalhes').style.display = 'none';
+
+      document.getElementById('livro-sinopse').textContent = video.sinopse;
+      
+      const linkTxt = document.getElementById('video-link-txt');
+      linkTxt.textContent = video.link;
+      document.getElementById('bloco-link-youtube').style.display = 'block';
+
+      const btnAcao = document.getElementById('btn-acao-principal');
+      btnAcao.textContent = 'ASSISTIR NO YOUTUBE';
+      document.getElementById('quadrado-capa-box').className = 'quadrado-capa';
+
+      document.getElementById('tela-livro').classList.add('aberta');
+    }
+
+    function atualizarVisualCapaModal() {
       const img = document.getElementById('livro-capa');
       const vazia = document.getElementById('livro-capa-vazia');
-      if (livrosCapas[livroAtualId]) {
-        img.src = livrosCapas[livroAtualId];
+      let capaSalva = (tipoModalAtual === 'livro') ? livrosCapas[atualIdModal] : videosCapas[atualIdModal];
+
+      if (capaSalva) {
+        img.src = capaSalva;
         img.style.display = 'block';
         vazia.style.display = 'none';
       } else {
         img.removeAttribute('src');
         img.style.display = 'none';
         vazia.style.display = 'block';
+        vazia.textContent = (tipoModalAtual === 'livro') ? '🖼️' : '▶️';
       }
     }
 
-    function escolherCapaLivroAtual() {
-      if (!livroAtualId) return;
-      livroTrocaId = livroAtualId;
-      document.getElementById('arquivo-livro').click();
+    function escolherCapaAtual() {
+      if (tipoModalAtual === 'livro') {
+        if (!atualIdModal) return;
+        livroTrocaId = atualIdModal;
+        document.getElementById('arquivo-livro').click();
+      } else {
+        if (!atualIdModal) return;
+        videoTrocaId = atualIdModal;
+        document.getElementById('arquivo-video').click();
+      }
+    }
+
+    function acaoPrincipalModal() {
+      if (tipoModalAtual === 'livro') {
+        alert('Iniciando leitura do livro...');
+      } else {
+        const video = videosFnaf.find(v => v.id === atualIdModal);
+        if (video && video.link) {
+          window.open(video.link, '_blank');
+        }
+      }
     }
 
     function fecharTelaLivro() {
@@ -1014,8 +1141,7 @@
       balao.innerHTML = '';
       balao.appendChild(el('p', 'mg-fala', falasSenhorK[mgFala]));
       balao.appendChild(el('span', 'mg-seta', '▼'));
-      balao.classList.remove('aberto');
-      void balao.offsetWidth;
+      balao.classList.remove('aberto');void balao.offsetWidth;
       balao.classList.add('aberto');
     }
 
@@ -1125,6 +1251,7 @@
         if (c.id === 'fnaf') {
           bloco.appendChild(montarSecaoLivrosFnaf());
           bloco.appendChild(montarSecaoLivrosPizzaplex());
+          bloco.appendChild(montarSecaoVideosFnaf());
         }
 
         conteudo.appendChild(bloco);
@@ -1152,7 +1279,7 @@
       document.getElementById('m-nome').value = '';
       document.getElementById('m-status').selectedIndex = 0;
       document.getElementById('m-previa').style.display = 'none';
-      document.getElementById('m-botao-capa').textCoded = document.getElementById('m-botao-capa').textContent = 'Escolher capa';
+      document.getElementById('m-botao-capa').textContent = 'Escolher capa';
       desenharEstrelasModal();
       document.getElementById('modal').classList.add('aberto');
     }
@@ -1266,7 +1393,22 @@
           alert('Sem espaço para guardar essa capa.');
           return;
         }
-        atualizarVisualCapaLivroModal();
+        atualizarVisualCapaModal();
+        desenhar();
+      });
+    };
+
+    document.getElementById('arquivo-video').onchange = (e) => {
+      const arquivo = e.target.files[0];
+      e.target.value = '';
+      if (!arquivo || !videoTrocaId) return;
+      reduzirImagem(arquivo, 480, 'image/jpeg', (dados) => {
+        videosCapas[videoTrocaId] = dados;
+        if (!guardar('kflix_videos_capas', videosCapas)) {
+          alert('Sem espaço para guardar essa capa.');
+          return;
+        }
+        atualizarVisualCapaModal();
         desenhar();
       });
     };

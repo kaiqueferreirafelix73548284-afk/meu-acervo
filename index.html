@@ -1076,16 +1076,85 @@
       }
     }
 
-    function acaoPrincipalModal() {
-      if (tipoModalAtual === 'livro') {
-        alert('Iniciando leitura do livro...');
-      } else {
-        const video = videosFnaf.find(v => v.id === atualIdModal);
-        if (video && video.link) {
-          window.open(video.link, '_blank');
+// 1. Função principal do modal (Livros e Vídeos)
+function acaoPrincipalModal() {
+    if (tipoModalAtual === 'livro') {
+        var livro = null;
+        for (var i = 0; i < livrosFnaf.length; i++) {
+            if (livrosFnaf[i].id === atualIdModal) { livro = livrosFnaf[i]; break; }
         }
-      }
+        if (!livro) {
+            for (var j = 0; j < livrosPizzaplex.length; j++) {
+                if (livrosPizzaplex[j].id === atualIdModal) { livro = livrosPizzaplex[j]; break; }
+            }
+        }
+        if (livro) {
+            abrirLeitor(livro);
+        }
+    } else {
+        var video = null;
+        for (var k = 0; k < videosFnaf.length; k++) {
+            if (videosFnaf[k].id === atualIdModal) { video = videosFnaf[k]; break; }
+        }
+        if (video && video.link) {
+            window.open(video.link, '_blank');
+        }
     }
+}
+
+// 2. Função para carregar as fotos da galeria no livro
+function carregarFotosGaleria(event) {
+    const ficheiros = event.target.files;
+    if (!ficheiros || ficheiros.length === 0) return;
+
+    if (!window.paginasDoLivro) {
+        window.paginasDoLivro = [];
+    }
+
+    for (let i = 0; i < ficheiros.length; i++) {
+        const leitorFicheiro = new FileReader();
+        leitorFicheiro.onload = function(e) {
+            window.paginasDoLivro.push(e.target.result);
+            // Atualiza a visualização no leitor assim que carregar
+            if (typeof atualizarPaginaLeitor === 'function') {
+                atualizarPaginaLeitor();
+            }
+        };
+        leitorFicheiro.readAsDataURL(ficheiros[i]);
+    }
+}
+
+// 3. Torna o centro do leitor clicável para abrir a galeria
+document.addEventListener('DOMContentLoaded', function() {
+    // Cria o input invisível de galeria automaticamente
+    if (!document.getElementById('input-galeria-livro')) {
+        const inputGaleria = document.createElement('input');
+        inputGaleria.type = 'file';
+        inputGaleria.id = 'input-galeria-livro';
+        inputGaleria.accept = 'image/*';
+        inputGaleria.multiple = true;
+        inputGaleria.style.display = 'none';
+        inputGaleria.onchange = carregarFotosGaleria;
+        document.body.appendChild(inputGaleria);
+    }
+
+    // Ao clicar na área central do leitor, abre a galeria do telemóvel
+    const elementoCentral = document.getElementById('imagem-leitor') || document.getElementById('modal-leitor');
+    if (elementoCentral) {
+        elementoCentral.addEventListener('click', function(e) {            // Evita abrir a galeria se clicar nos botões de avançar/recuar
+            if (e.target.tagName !== 'BUTTON') {
+                document.getElementById('input-galeria-livro').click();
+            }
+        });
+    }
+});
+
+
+
+
+
+
+
 
     function fecharTelaLivro() {
       document.getElementById('tela-livro').classList.remove('aberta');
@@ -1562,6 +1631,57 @@
       };
     } catch (e) {}
     desenhar();
+  let paginaAtual = 1;
+let paginasDoLivro = [];
+
+function abrirLeitor(livro) {
+    paginaAtual = 1;
+    paginasDoLivro = (livro.paginas && livro.paginas.length > 0) ? livro.paginas : [livro.capa]; 
+    atualizarVisualLeitor();
+    document.getElementById('modal-leitor').style.display = 'flex';
+}
+
+document.getElementById('leitor-voltar').onclick = () => {
+    document.getElementById('modal-leitor').style.display = 'none';
+};
+
+document.getElementById('leitor-Anterior').onclick = () => {
+    if (paginaAtual > 1) {
+        paginaAtual--;
+        atualizarVisualLeitor();
+    }
+};
+
+document.getElementById('leitor-Proximo').onclick = () => {
+    if (paginaAtual < paginasDoLivro.length) {
+        paginaAtual++;
+        atualizarVisualLeitor();
+    } else {
+        alert("Adicionar nova página na galeria deste livro!");
+    }
+};
+
+function atualizarVisualLeitor() {
+    document.getElementById('leitor-contador').textContent = paginaAtual + " / " + paginasDoLivro.length;
+    const container = document.getElementById('leitor-conteudo');
+    const conteudoAtual = paginasDoLivro[paginaAtual - 1];
+    container.innerHTML = `<img src="${conteudoAtual}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:8px;">`;
+}
+
   </script>
+<div id="modal-leitor" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#1a1a2e; z-index:999; flex-direction:column; justify-content:space-between; align-items:center; padding: 20px; box-sizing: border-box;">
+    <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+        <button id="leitor-voltar" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&#8592;</button>
+        <span id="leitor-contador" style="color:white; font-size:18px; font-weight:bold;">1</span>
+        <div style="width:24px;"></div>
+    </div>
+    <div id="leitor-conteudo" style="flex:1; display:flex; justify-content:center; align-items:center; width:100%; max-width:400px; margin: 10px 0; overflow:hidden;">
+    </div>
+    <div style="width:100%; display:flex; justify-content:space-around; align-items:center; padding-bottom: 10px;">
+        <button id="leitor-Anterior" style="background:none; border:none; color:white; font-size:32px; cursor:pointer;">&#8592;</button>
+        <button id="leitor-Proximo" style="background:none; border:none; color:white; font-size:32px; cursor:pointer;">&#8594;</button>
+    </div>
+</div>
+
 </body>
 </html>

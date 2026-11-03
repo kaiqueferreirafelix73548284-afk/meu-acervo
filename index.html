@@ -1435,6 +1435,132 @@
       if (e.target.id === 'modal-jogo') fecharInfoJogo();
     };
 
+    // ===== Backup: exportar e importar tudo do KFLIX =====
+    function fazerBackup() {
+      try {
+        const dados = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const chave = localStorage.key(i);
+          if (chave && chave.indexOf('kflix_') === 0) {
+            dados[chave] = localStorage.getItem(chave);
+          }
+        }
+        if (Object.keys(dados).length === 0) {
+          alert('Ainda não tem nada para guardar no backup.');
+          return;
+        }
+
+        const pacote = {
+          app: 'KFLIX',
+          criadoEm: new Date().toISOString(),
+          dados: dados
+        };
+        const blob = new Blob([JSON.stringify(pacote)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const hoje = new Date().toISOString().slice(0, 10);
+        const nome = 'kflix-backup-' + hoje + '.json';
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nome;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+        setTimeout(() => {
+          alert('Backup criado! Procure o arquivo ' + nome + ' na pasta Downloads do celular.');
+        }, 500);
+      } catch (e) {
+        alert('Não consegui criar o backup.');
+      }
+    }
+
+    const entradaBackup = document.createElement('input');
+    entradaBackup.type = 'file';
+    entradaBackup.style.display = 'none';
+    document.body.appendChild(entradaBackup);
+
+    entradaBackup.onchange = (e) => {
+      const arquivo = e.target.files[0];
+      e.target.value = '';
+      if (!arquivo) return;
+
+      const leitor = new FileReader();
+      leitor.onload = () => {
+        let pacote = null;
+        try {
+          pacote = JSON.parse(leitor.result);
+        } catch (erro) {
+          pacote = null;
+        }
+
+        if (!pacote || pacote.app !== 'KFLIX' || !pacote.dados) {
+          alert('Esse arquivo não parece ser um backup do KFLIX.');
+          return;
+        }
+
+        const chaves = Object.keys(pacote.dados).filter(k => k.indexOf('kflix_') === 0);
+        if (chaves.length === 0) {
+          alert('Esse backup está vazio.');
+          return;
+        }
+
+        if (!confirm('Importar vai SUBSTITUIR o que está no app agora pelo que está no backup. Continuar?')) return;
+
+        const antigos = {};
+        chaves.forEach(k => { antigos[k] = localStorage.getItem(k); });
+
+        try {
+          chaves.forEach(k => localStorage.setItem(k, pacote.dados[k]));
+        } catch (erro) {
+          chaves.forEach(k => {
+            try {
+              if (antigos[k] === null) {
+                localStorage.removeItem(k);
+              } else {
+                localStorage.setItem(k, antigos[k]);
+              }
+            } catch (x) {}
+          });
+          alert('Sem espaço para importar tudo. Nada foi alterado.');
+          return;
+        }
+
+        alert('Backup importado!');
+        location.reload();
+      };
+      leitor.readAsText(arquivo);
+    };
+
+    function botoesBackup() {
+      const menu = document.getElementById('menu');
+      if (!menu) return;
+
+      const titulo = document.createElement('h3');
+      titulo.textContent = 'Backup';
+      titulo.style.margin = '20px 0 8px';
+      menu.appendChild(titulo);
+
+      const exportar = document.createElement('button');
+      exportar.textContent = '⬇️ Exportar backup';
+      exportar.onclick = fazerBackup;
+      menu.appendChild(exportar);
+
+      const importar = document.createElement('button');
+      importar.textContent = '⬆️ Importar backup';
+      importar.onclick = () => entradaBackup.click();
+      menu.appendChild(importar);
+    }
+
+    // Faz os botões de backup aparecerem sempre que o menu for desenhado
+    try {
+      const desenharSemBackup = desenhar;
+      desenhar = function () {
+        desenharSemBackup();
+        botoesBackup();
+      };
+    } catch (e) {}
     desenhar();
   </script>
 </body>
